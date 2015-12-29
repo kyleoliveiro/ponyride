@@ -1,0 +1,252 @@
+#!/usr/bin/env python
+
+from splinter import Browser
+import getopt, shutil, sys, os, re, getpass, urllib, time
+
+def main(argv):
+
+	print "                                        _      __    "
+	print "     ____   ____   ____   __  __ _____ (_)____/ /___ "
+	print "    / __ \ / __ \ / __ \ / / / // ___// // __  // _ \\"
+	print "   / /_/ // /_/ // / / // /_/ // /   / // /_/ //  __/"
+	print "  / .___/ \____//_/ /_/ \__, //_/   /_/ \__,_/ \___/ "
+	print " /_/                   /____/                        "
+	print("")
+
+	# Get options from arguments
+	username = ''
+	password = ''
+	product_list_filename = ''
+
+	try:
+		opts, args = getopt.getopt(argv,"hu:p:f:",["username=","password=", "file="])
+	except getopt.GetoptError:
+		print "\n[Error] Example Usage: ./ponyride.py -u <username> -p <password> -f <product_list.txt>\n"
+		sys.exit(2)
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print "ponyride is a script for reposting products on Carousell"
+			print "========================================================"
+			print "\nTo let ponyride know which items to repost, create a .txt file"
+			print "containing product ID's (one per line). The file can also contain"
+			print "comments, indicated with a \"#\" at the beginning of the line."
+			print "\nExample Usage:"
+			print "./ponyride.py -u <username> -p <password> -f <product_list.txt>"
+			print "\nOptions:"
+			print "\t -u, --username <username>"
+			print "\t -p, --password <password>"
+			print "\t -f, --file <product_list.txt>"
+			print "\nExample product_list.txt:"
+			print("\t# Hawkings McGill Checkered Shirt (XS)")
+			print("\t38974461")
+			print("\t")
+			print("\t# Calvin Klein Long Sleeved Striped Black Shirt (XS)")
+			print("\t38974508")
+			print("\t")
+			print("\t# Topman Long Sleeved Striped Grey Shirt (XS)")
+			print("\t38974561")
+			sys.exit()
+
+		elif opt in ("-u", "--username"):
+			username = arg
+		elif opt in ("-p", "--password"):
+			password = arg
+		elif opt in ("-f", "--file"):
+			product_list_filename = arg
+
+	# Prompt for options if not supplied
+	while username == '':
+		username = raw_input("[?] Your Carousell username: ")
+	while password == '':
+		password = getpass.getpass("[?] Enter your Carousell password: ")
+	while product_list_filename == '':
+		product_list_filename = raw_input("[?] Path to product list file: ")
+
+	with Browser() as browser:
+		## Set window size for PhantomJS
+		## browser.driver.set_window_size(1280, 768)
+
+		# Visit URL and open log modal
+		url = "http://www.carousell.com"
+		print "\n[Connecting to Carousell]"
+		browser.visit(url)
+		print "[i] Connection to " + browser.url + " established."
+
+		browser.click_link_by_href('/login?next=/')
+
+		# Fill and submit login form
+		browser.fill('username', username)
+		browser.fill('pass', password)
+		browser.find_by_css('.login-btn').first.click()
+
+		print "\n[Logging in as: " + username + "]"
+
+		# Login success validation
+		if browser.is_element_not_present_by_css('.login-btn'):
+			print("[!] Successfully logged in.")
+		else:
+			print("[!] Failed to log in. Please check your username and password.\n")
+			sys.exit()
+
+		# Read product ids from file
+		products_dat = open(product_list_filename, "r")
+		pdt_ids = products_dat.read().split('\n')
+
+		# Strip comments from file
+		pdt_ids = [ x for x in pdt_ids if "#" not in x ]
+
+		# Strip invalid ID's
+		pdt_ids = [ x for x in pdt_ids if x != '' ]
+
+		products_dat.close()
+
+		# Loop over items
+		print "\n[Processing Products]"
+
+		if len(pdt_ids) > 0:
+			pdt_id_index = 0
+
+			for pdt_id in pdt_ids:
+				pdt_id_index = pdt_id_index + 1
+
+				# Find and log product information
+				print "\n[Product " + str(pdt_id_index) + " of " + str(len(pdt_ids)) + "]"
+				print("===============================================")
+				print "[i] Product ID: " + pdt_id
+				print("    ---------------------------------------")
+
+				browser.visit(url + "/p/" + pdt_id)
+
+				if browser.is_element_present_by_css('.pdt-buy-box-title'):
+					if browser.is_element_present_by_text('Edit Listing'):
+						pdt_title = browser.find_by_css('.pdt-buy-box-title').first.value
+						pdt_desc = browser.find_by_css('.pdt-description-content').first.value
+						pdt_price = re.sub('[$]', '', browser.find_by_css('.fa-tag + span').first.value)
+
+						print "    " + pdt_title
+
+						# Get product images
+						image_srcs = []
+						images = browser.find_by_css('.pdt-swiper-slide-image')
+
+						for image in images:
+							image_src = image['src']
+							image_srcs.append(image_src)
+
+						image_srcs = image_srcs[:len(image_srcs)-1]
+						image_srcs = image_srcs[1:]
+
+						browser.click_link_by_href('/sell/' + pdt_id)
+						pdt_cat = browser.find_by_id('sell-category').first.value
+						pdt_cat_name = browser.find_by_css('#sell-category option[selected]').first.text;
+
+						print("    ---------------------------------------")
+						print "    $" + pdt_price + " | " + pdt_cat_name + " | " + str(len(image_srcs)) + " Image(s)"
+						print("    ---------------------------------------")
+
+						# Post duplicate product
+						browser.visit("https://carousell.com/sell/")
+
+						print("\n[Uploading Product Data]")
+
+						# Loop through, save and attach images
+						browser.find_by_css('.sell-thumb').first.click()
+						image_file_index = 0
+						images_folder = os.getcwd() + '/images'
+
+						for image_src in image_srcs:
+							if(not os.path.exists(images_folder)):
+								os.mkdir('images')
+
+							image_file_index = image_file_index+1
+							image_file = urllib.URLopener()
+							image_file.retrieve(image_src, "images/image_" + str(image_file_index) + ".jpg")
+							image_file_path = os.getcwd() + "/images/image_" + str(image_file_index) + ".jpg"
+
+							unhide_upload_script = 'document.getElementById("sell-thumb-input").className = ""'
+							browser.execute_script(unhide_upload_script)
+
+							browser.attach_file('images', image_file_path)
+
+						shutil.rmtree(images_folder)
+
+						# Fill in remaining product meta deta
+						browser.find_by_id('sell-category').first.select(pdt_cat)
+						browser.find_by_id('sell-title').first.fill(pdt_title)
+						browser.find_by_id('sell-price').first.fill(pdt_price)
+
+						# Fill in product description
+						browser.find_by_text('Show more').first.click()
+						browser.find_by_id('sell-desc').first.fill(pdt_desc)
+
+						# Submit listing form
+						print('\n[Submitting New Product Listing]')
+						browser.find_by_text('List my item').first.click()
+
+						if(browser.find_by_text('Successfully listed')):
+							view_listing_button = browser.find_by_css('.btn-success + .btn-default').first
+							new_pdt_url = view_listing_button['href']
+							new_pdt_id = new_pdt_url.replace('https://carousell.com', '').replace('/p/', '').replace('/', '')
+
+							print "[!] Product listed successfully: " + new_pdt_id
+
+							# Delete original post
+							print "\n[Deleting Original Listing]"
+
+							browser.visit(url + "/p/" + pdt_id)
+
+							browser.is_element_present_by_text('Edit Listing', 2)
+							browser.find_by_text('Edit Listing').first.click()
+
+							browser.is_element_present_by_text('Delete Listing', 2)
+							browser.find_by_text('Delete Listing').first.click()
+
+							alert = browser.get_alert()
+
+							time.sleep(2)
+
+							if str(alert.text) == "Are you sure you want to delete this listing?":
+								alert.accept()
+							else:
+								alert.dismiss()
+
+							if browser.url == "https://carousell.com/" + username + "/":
+								print "[!] Original listing deleted successfully."
+
+								# Update product ID in product list
+								products_dat = open(product_list_filename, "r+")
+								products_dat_data = str(products_dat.read()).decode('utf-8')
+								products_dat.close()
+
+								# Clear existing data
+								open(product_list_filename, 'w').close()
+
+								# Write new data
+								products_dat = open(product_list_filename, "r+")
+								new_data = products_dat_data.replace(pdt_id, new_pdt_id)
+								products_dat.write(new_data.encode('utf-8'))
+								products_dat.close()
+
+								print "[!] Updated product list " + pdt_id + " ===> " + new_pdt_id
+							else:
+								print "[!] Failed to delete original listing."
+
+						else:
+							print "[!] Product listing failed."
+					else:
+						print("[!] Error: This product does not belong to the currently logged in user.")
+				else:
+					print "[i] Error: Product not found."
+
+				print("===============================================")
+
+			print "\n[Processing Complete]"
+			print "[i] " + str(len(pdt_ids)) + " products processed."
+
+		else:
+			print("[!] Error: Product list is empty. Add some product IDs to your product list.")
+			print("[!] Run `./ponyride -h` for help.\n")
+
+if __name__ == "__main__":
+	main(sys.argv[1:])

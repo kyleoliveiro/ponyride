@@ -2,13 +2,16 @@
 
 ### A utility script for reposting products on [Carousell](https://carousell.com).
 
+## Requirements
+* [Python 2.7](https://www.python.org/downloads/)
+* [Firefox](http://firefox.com/)
+
 ## Installation
-* Ensure you have [Python 2.7](https://www.python.org/downloads/) installed
-* Clone this repository
+* `git clone https://github.com/kyleoliveiro/ponyride`
 * `pip install splinter`
 
 ## Example Usage
-`./ponyride.py -u <username> -p <password> -f <product_list.txt>`
+`./ponyride -u <username> -p <password> -f <product_list.txt>`
 
 ## Options
 	-u, --username <username>

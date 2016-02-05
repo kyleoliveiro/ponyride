@@ -181,7 +181,9 @@ def main(argv):
 
 						# Submit listing form
 						print('\n[Submitting New Product Listing]')
-						browser.find_by_text('List my item').first.click()
+
+						list_button_text = browser.find_by_text('List my item').first
+						list_button_text.find_by_xpath('..').click()
 
 						if(browser.find_by_text('Successfully listed')):
 							view_listing_button = browser.find_by_css('.btn-success + .btn-default').first
@@ -199,7 +201,8 @@ def main(argv):
 							browser.find_by_text('Edit Listing').first.click()
 
 							browser.is_element_present_by_text('Delete Listing', 2)
-							browser.find_by_text('Delete Listing').first.click()
+							delete_button_text = browser.find_by_text('Delete Listing').first
+							delete_button_text.find_by_xpath('..').click()
 
 							alert = browser.get_alert()
 

@@ -177,7 +177,6 @@ def main(argv):
 						browser.find_by_id('sell-price').first.fill(pdt_price)
 
 						# Fill in product description
-						browser.find_by_text('Show more').first.click()
 						browser.find_by_id('sell-desc').first.fill(pdt_desc)
 
 						# Submit listing form

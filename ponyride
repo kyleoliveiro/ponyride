@@ -21,23 +21,23 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv,"hu:p:f:",["username=","password=", "file="])
 	except getopt.GetoptError:
-		print "\n[Error] Example Usage: ./ponyride.py -u <username> -p <password> -f <product_list.txt>\n"
+		print "\n[Error] Usage: ./ponyride.py -u <username> -p <password> -f <product_list>\n"
 		sys.exit(2)
 
 	for opt, arg in opts:
 		if opt == '-h':
 			print "ponyride is a script for reposting products on Carousell"
 			print "========================================================"
-			print "\nTo let ponyride know which items to repost, create a .txt file"
-			print "containing product ID's (one per line). The file can also contain"
+			print "\nTo let ponyride know which items to repost, create a .txt file in the `/lists/`"
+			print "directory containing product ID's (one per line). The file can also contain"
 			print "comments, indicated with a \"#\" at the beginning of the line."
 			print "\nExample Usage:"
-			print "./ponyride.py -u <username> -p <password> -f <product_list.txt>"
+			print "./ponyride.py -u <username> -p <password> -f <product_list>"
 			print "\nOptions:"
 			print "\t -u, --username <username>"
 			print "\t -p, --password <password>"
-			print "\t -f, --file <product_list.txt>"
-			print "\nExample product_list.txt:"
+			print "\t -f, --file <product_list>"
+			print "\nExample product list:"
 			print("\t# Hawkings McGill Checkered Shirt (XS)")
 			print("\t38974461")
 			print("\t")

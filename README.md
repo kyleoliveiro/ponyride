@@ -35,4 +35,5 @@ comments, indicated with a `#` character at the beginning of the line.
 	38974561
 
 ## Changelog
+* **16 April 2015:** Compatibility fixes
 * **29 December 2015:** Initial release

@@ -64,8 +64,8 @@ def main(argv):
 		product_list_filename = raw_input("[?] Path to product list file: ")
 
 	with Browser() as browser:
-		## Set window size for PhantomJS
-		## browser.driver.set_window_size(1280, 768)
+		# Set window size to ensure everything works
+		browser.driver.set_window_size(1280, 768)
 
 		# Visit URL and open log modal
 		url = "http://www.carousell.com"
@@ -120,6 +120,7 @@ def main(argv):
 
 				if browser.is_element_present_by_css('.pdt-buy-box-title'):
 					if browser.is_element_present_by_text('Edit Listing'):
+						# Get product info
 						pdt_title = browser.find_by_css('.pdt-buy-box-title').first.value
 						pdt_desc = browser.find_by_css('.pdt-description-content').first.value
 						pdt_price = re.sub('[$]', '', browser.find_by_css('.fa-tag + span').first.value)
@@ -137,10 +138,12 @@ def main(argv):
 						image_srcs = image_srcs[:len(image_srcs)-1]
 						image_srcs = image_srcs[1:]
 
+						# Get product category
 						browser.click_link_by_href('/sell/' + pdt_id)
-						pdt_cat = browser.find_by_id('sell-category').first.value
-						pdt_cat_name = browser.find_by_css('#sell-category option[selected]').first.text;
+						pdt_cat_id = browser.find_by_id('formSellCollection').first.value
+						pdt_cat_name = browser.find_by_css('#formSellCollection option[selected]').first.text;
 
+						# Print product info
 						print("    ---------------------------------------")
 						print "    $" + pdt_price + " | " + pdt_cat_name + " | " + str(len(image_srcs)) + " Image(s)"
 						print("    ---------------------------------------")
@@ -150,7 +153,7 @@ def main(argv):
 
 						print("\n[Uploading Product Data]")
 
-						# Loop through, save and attach images
+						# Loop through, temporarily save, and attach images
 						browser.find_by_css('.sell-thumb').first.click()
 						image_file_index = 0
 						images_folder = os.getcwd() + '/images'
@@ -164,20 +167,26 @@ def main(argv):
 							image_file.retrieve(image_src, "images/image_" + str(image_file_index) + ".jpg")
 							image_file_path = os.getcwd() + "/images/image_" + str(image_file_index) + ".jpg"
 
-							unhide_upload_script = 'document.getElementById("sell-thumb-input").className = ""'
+							# Unhide the file upload input so Splinter can interact with it
+							unhide_upload_script = 'var imageUploader = document.querySelector("input[name=images][type=file].hidden"); if(imageUploader) imageUploader.className = ""'
 							browser.execute_script(unhide_upload_script)
 
 							browser.attach_file('images', image_file_path)
 
+						# Delete temporary images
 						shutil.rmtree(images_folder)
 
+						# Make category selectable and fill in the value
+						selectable_category_script = 'document.getElementById("formSellCollection").name = "formSellCollection"'
+						browser.execute_script(selectable_category_script)
+						browser.select('formSellCollection', pdt_cat_id)
+
 						# Fill in remaining product meta deta
-						browser.find_by_id('sell-category').first.select(pdt_cat)
-						browser.find_by_id('sell-title').first.fill(pdt_title)
-						browser.find_by_id('sell-price').first.fill(pdt_price)
+						browser.find_by_id('sellInfoTitle').first.fill(pdt_title)
+						browser.find_by_id('formSellPrice').first.fill(pdt_price)
 
 						# Fill in product description
-						browser.find_by_id('sell-desc').first.fill(pdt_desc)
+						browser.find_by_id('formSellDescription').first.fill(pdt_desc)
 
 						# Submit listing form
 						print('\n[Submitting New Product Listing]')

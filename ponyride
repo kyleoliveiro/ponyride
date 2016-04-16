@@ -118,6 +118,8 @@ def main(argv):
 
 				browser.visit(url + "/p/" + pdt_id)
 
+				time.sleep(2)
+
 				if browser.is_element_present_by_css('.pdt-buy-box-title'):
 					if browser.is_element_present_by_text('Edit Listing'):
 						# Get product info
@@ -193,6 +195,8 @@ def main(argv):
 
 						list_button_text = browser.find_by_text('List my item').first
 						list_button_text.find_by_xpath('..').click()
+
+						time.sleep(2)
 
 						if(browser.find_by_text('Successfully listed')):
 							view_listing_button = browser.find_by_css('.btn-success + .btn-default').first

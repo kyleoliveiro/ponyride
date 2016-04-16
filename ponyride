@@ -201,6 +201,22 @@ def main(argv):
 
 							print "[!] Product listed successfully: " + new_pdt_id
 
+							# Update product ID in product list
+							products_dat = open(product_list_filename, "r+")
+							products_dat_data = str(products_dat.read()).decode('utf-8')
+							products_dat.close()
+
+							# Clear existing data
+							open(product_list_filename, 'w').close()
+
+							# Write new data
+							products_dat = open(product_list_filename, "r+")
+							new_data = products_dat_data.replace(pdt_id, new_pdt_id)
+							products_dat.write(new_data.encode('utf-8'))
+							products_dat.close()
+
+							print "[!] Updated product list " + pdt_id + " ===> " + new_pdt_id
+
 							# Delete original post
 							print "\n[Deleting Original Listing]"
 
@@ -222,24 +238,10 @@ def main(argv):
 							else:
 								alert.dismiss()
 
+							time.sleep(2)
+
 							if browser.url == "https://carousell.com/" + username + "/":
 								print "[!] Original listing deleted successfully."
-
-								# Update product ID in product list
-								products_dat = open(product_list_filename, "r+")
-								products_dat_data = str(products_dat.read()).decode('utf-8')
-								products_dat.close()
-
-								# Clear existing data
-								open(product_list_filename, 'w').close()
-
-								# Write new data
-								products_dat = open(product_list_filename, "r+")
-								new_data = products_dat_data.replace(pdt_id, new_pdt_id)
-								products_dat.write(new_data.encode('utf-8'))
-								products_dat.close()
-
-								print "[!] Updated product list " + pdt_id + " ===> " + new_pdt_id
 							else:
 								print "[!] Failed to delete original listing."
 

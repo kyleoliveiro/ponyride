@@ -68,7 +68,7 @@ def main(argv):
 		browser.driver.set_window_size(1280, 768)
 
 		# Visit URL and open log modal
-		url = "http://www.carousell.com"
+		url = "https://www.carousell.com"
 		print "\n[Connecting to Carousell]"
 		browser.visit(url)
 		print "[i] Connection to " + browser.url + " established."

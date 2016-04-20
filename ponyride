@@ -23,9 +23,10 @@ def main(argv):
 	random_categories = False
 
 	try:
-		opts, args = getopt.getopt(argv,"hu:p:f:r",["username=", "password=", "file=", "random_categories="])
+		opts, args = getopt.getopt(argv,"hu:p:f:r",["username=", "password=", "file=", "random"])
 	except getopt.GetoptError:
-		print "\n[Error] Usage: ./ponyride.py -u <username> -p <password> -f <product_list>\n"
+		print "\n[Error] Usage: ./ponyride [options]"
+		print "For help run: ./ponyride -h\n"
 		sys.exit(2)
 
 	for opt, arg in opts:
@@ -36,11 +37,12 @@ def main(argv):
 			print "directory containing product ID's (one per line). The file can also contain"
 			print "comments, indicated with a \"#\" at the beginning of the line."
 			print "\nExample Usage:"
-			print "./ponyride.py -u <username> -p <password> -f <product_list>"
+			print "./ponyride -u <username> -p <password> -f <product_list>"
 			print "\nOptions:"
 			print "\t -u, --username <username>"
 			print "\t -p, --password <password>"
 			print "\t -f, --file <product_list>"
+			print "\t -r, --random"
 			print "\nExample product list:"
 			print("\t# Hawkings McGill Checkered Shirt (XS)")
 			print("\t38974461")
@@ -58,7 +60,7 @@ def main(argv):
 			password = arg
 		elif opt in ("-f", "--file"):
 			product_list_filename = arg
-		elif opt in ("-r", "--random-categories"):
+		elif opt in ("-r", "--random"):
 			random_categories = True
 
 	# Prompt for options if not supplied

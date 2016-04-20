@@ -17,6 +17,7 @@
 	-u, --username <username>
 	-p, --password <password>
 	-f, --file <product_list>
+	-r, --random
 
 ### Product List
 To let ponyride know which items to repost, create a `.txt` file in the `/lists/` directory containing product ID's one per line). The file can also contain comments, indicated with a `#` character at the beginning of the line.
@@ -39,5 +40,6 @@ This means that you won't have to manually update your product list file unless 
 	38974561
 
 ### Changelog
+* **20 April 2015:** Add option to repost listings to random categories
 * **16 April 2015:** Compatibility fixes
 * **29 December 2015:** Initial release

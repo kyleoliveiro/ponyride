@@ -40,6 +40,6 @@ This means that you won't have to manually update your product list file unless 
 	38974561
 
 ### Changelog
-* **20 April 2015:** Add option to repost listings to random categories
-* **16 April 2015:** Compatibility fixes
+* **20 April 2016:** Add option to repost listings to random categories
+* **16 April 2016:** Compatibility fixes
 * **29 December 2015:** Initial release

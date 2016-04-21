@@ -2,6 +2,11 @@
 
 ###### A utility script for reposting products on [Carousell](https://carousell.com).
 
+### Disclaimer
+**Use this script responsibly and at your own discretion.**
+
+**There have been reports of accounts getting banned for reposting listings too frequently.**
+
 ### Requirements
 * [Python 2.7](https://www.python.org/downloads/)
 * [Firefox](http://firefox.com/)
